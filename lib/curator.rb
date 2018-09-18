@@ -1,6 +1,7 @@
 require './lib/file_io'
 
 class Curator<FileIO
+  
   attr_accessor :artists,
               :photographs
 
@@ -37,17 +38,20 @@ class Curator<FileIO
   end
 
   def hash_of_artist_id_and_photograph_count
-    a = @photographs.inject(Hash.new(0)) do |total, photograph|
+    @photographs.inject(Hash.new(0)) do |total, photograph|
       total[photograph.artist_id] += 1
       total
     end
   end
 
-  def artists_with_multiple_photographs
+  def artist_ids_with_over_one_photo
     artists_over_one = hash_of_artist_id_and_photograph_count.keep_if do |artist_id,count|
       count > 1
     end
-    artists_over_one.keys.map do |artist_id|
+  end
+
+  def artists_with_multiple_photographs
+    artist_ids_with_over_one_photo.keys.map do |artist_id|
       find_artist_by_id(artist_id)
     end
   end
@@ -68,19 +72,11 @@ class Curator<FileIO
     end
   end
 
-  def load_photographs(file)
-    super(file)
-  end
-
-  def load_artists(file)
-    super(file)
-  end
-
   def photographs_taken_between(range)
-    a = @photographs.find_all do |photograph|
+    included_photos = @photographs.find_all do |photograph|
       range.include?(photograph.year.to_i)
     end
-  b =   a.map do |photograph|
+    included_photos.map do |photograph|
       find_photograph_by_id(photograph.id)
     end
   end
@@ -90,7 +86,6 @@ class Curator<FileIO
     ages = find_age_of_artists_at_time_of_photo(photos)
     titles = find_name_of_photographs(photos)
     a = ages.zip(titles).to_h
-    binding.pry
   end
 
   def find_name_of_photographs(photo_array)
@@ -98,12 +93,12 @@ class Curator<FileIO
       photo.name
     end
   end
+
   def find_age_of_artists_at_time_of_photo(photo_array)
     artist = find_artist_by_id(photo_array[0].artist_id)
     photo_array.map do |photo|
       photo.year.to_i - artist.born.to_i
     end
   end
-
 
 end
