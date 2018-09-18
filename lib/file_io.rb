@@ -1,8 +1,7 @@
 require 'csv'
 
 class FileIO
-  def self.load_artists(file)
-    artists = []
+  def load_artists(file)
     contents = CSV.open file, headers: true, header_converters: :symbol
     contents.each do |row|
       artist_hash = {
@@ -12,13 +11,12 @@ class FileIO
         died: row[:died],
         country: row[:country]
       }
-      artists << artist_hash
+      artists << Artist.new(artist_hash)
     end
     return artists
   end
 
-  def self.load_photographs(file)
-    photographs = []
+  def load_photographs(file)
     contents = CSV.open file, headers: true, header_converters: :symbol
     contents.each do |row|
       photograph_hash = {
@@ -27,7 +25,7 @@ class FileIO
         artist_id: row[:artist_id],
         year: row[:year],
       }
-      photographs << photograph_hash
+      photographs << Photograph.new(photograph_hash)
     end
     return photographs
   end
