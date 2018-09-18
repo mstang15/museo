@@ -25,4 +25,27 @@ class Curator
       photograph.id == id_number
     end
   end
+
+  def find_photographs_by_artist(artist)
+    artist_id = artist.id
+    @photographs.find_all do |photograph|
+      photograph.artist_id == artist_id
+    end
+  end
+
+  def hash_of_artist_id_and_photograph_count
+    a = @photographs.inject(Hash.new(0)) do |total, photograph|
+      total[photograph.artist_id] += 1
+      total
+    end
+  end
+
+  def artists_with_multiple_photographs
+    artists_over_one = hash_of_artist_id_and_photograph_count.keep_if do |artist_id,count|
+      count > 1
+    end
+    artists_over_one.keys.map do |artist_id|
+      find_artist_by_id(artist_id)
+    end
+  end
 end
